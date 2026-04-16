@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const Student = require("./models/Student");
@@ -26,7 +27,7 @@ app.put("/update/:id", async (req, res) => {
 });
 
 
-mongoose.connect("mongodb://Srimathi:Srimathi@ac-rqiqnty-shard-00-00.mrefsk2.mongodb.net:27017,ac-rqiqnty-shard-00-01.mrefsk2.mongodb.net:27017,ac-rqiqnty-shard-00-02.mrefsk2.mongodb.net:27017/studentDB?ssl=true&replicaSet=atlas-2p9lyw-shard-0&authSource=admin&appName=Cluster0")
+mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
