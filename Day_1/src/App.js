@@ -2,11 +2,18 @@ import React, { useState, useEffect } from "react";
 import StudentCard from "./StudentCard";
 
 function App() {
-  const [students, setStudents] = useState([]);
+  const [students, setStudents] = useState([
+  { id: 1, name: "Sassy", course: "AI" },
+  { id: 2, name: "Ram", course: "React" },
+  { id: 3, name: "Priya", course: "Node" },
+  { id: 4, name: "John", course: "JS" },
+  { id: 5, name: "Anu", course: "Python" }
+]);
   const [name, setName] = useState("");
   const [course, setCourse] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [search, setSearch] = useState("");
+  const [apiUsers, setApiUsers] = useState([]);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("students"));
@@ -16,6 +23,12 @@ function App() {
   useEffect(() => {
     localStorage.setItem("students", JSON.stringify(students));
   }, [students]);
+
+  useEffect(() => {
+  fetch("https://jsonplaceholder.typicode.com/users")
+    .then((res) => res.json())
+    .then((data) => setApiUsers(data));
+}, []);
 
   const handleSubmit = () => {
     if (!name || !course) return;
@@ -28,7 +41,7 @@ function App() {
     } else {
       setStudents([
         ...students,
-        { name, course, status: "Active" },
+        { id: students.length + 1,name, course, status: "Active" },
       ]);
     }
 
@@ -63,6 +76,12 @@ function App() {
       }}
     >
       <h1>🎓 Student Manager Pro</h1>
+      <h2>Initial Student List (map & keys)</h2>
+      {students.map((student) => (
+  <p key={student.id}>
+    {student.name} - {student.course}
+  </p>
+))}
 
       {}
       <input
@@ -80,6 +99,7 @@ function App() {
       />
 
       {}
+      <h2>Add Student (Form Submit)</h2>
       <div
         style={{
           background: "#1e293b",
@@ -127,7 +147,7 @@ function App() {
         ) : (
           filteredStudents.map((student, index) => (
             <StudentCard
-              key={index}
+              key={student.id || index}
               student={student}
               onDelete={() => handleDelete(index)}
               onEdit={() => handleEdit(index)}
@@ -135,6 +155,11 @@ function App() {
           ))
         )}
       </div>
+      <h2>API Users (Fetch API)</h2>
+
+{apiUsers.map((user) => (
+  <p key={user.id}>{user.name}</p>
+))}
     </div>
   );
 }
