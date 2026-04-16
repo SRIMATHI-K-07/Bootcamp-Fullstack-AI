@@ -3,13 +3,12 @@ import StudentCard from "./StudentCard";
 
 function App() {
   const [students, setStudents] = useState([
-    { id: 1, name: "Sassy", course: "AI" },
-    { id: 2, name: "Ram", course: "React" },
-    { id: 3, name: "Priya", course: "Node" },
-    { id: 4, name: "John", course: "JS" },
-    { id: 5, name: "Anu", course: "Python" }
-  ]);
-
+  { id: 1, name: "Sassy", course: "AI" },
+  { id: 2, name: "Ram", course: "React" },
+  { id: 3, name: "Priya", course: "Node" },
+  { id: 4, name: "John", course: "JS" },
+  { id: 5, name: "Anu", course: "Python" }
+]);
   const [name, setName] = useState("");
   const [course, setCourse] = useState("");
   const [editIndex, setEditIndex] = useState(null);
@@ -26,10 +25,10 @@ function App() {
   }, [students]);
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((res) => res.json())
-      .then((data) => setApiUsers(data));
-  }, []);
+  fetch("https://jsonplaceholder.typicode.com/users")
+    .then((res) => res.json())
+    .then((data) => setApiUsers(data));
+}, []);
 
   const handleSubmit = () => {
     if (!name || !course) return;
@@ -42,7 +41,7 @@ function App() {
     } else {
       setStudents([
         ...students,
-        { id: students.length + 1, name, course, status: "Active" }
+        { id: students.length + 1,name, course, status: "Active" },
       ]);
     }
 
@@ -60,6 +59,7 @@ function App() {
     setEditIndex(index);
   };
 
+ 
   const filteredStudents = students.filter((s) =>
     s.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -69,156 +69,97 @@ function App() {
       style={{
         minHeight: "100vh",
         background: "linear-gradient(135deg, #0f172a, #1e293b)",
-        padding: "30px",
+        padding: "20px",
         fontFamily: "Poppins",
-        color: "white"
+        color: "white",
+        textAlign: "center",
       }}
     >
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
-        🎓 Student Manager Pro
-      </h1>
+      <h1>🎓 Student Manager Pro</h1>
+      <h2>Initial Student List (map & keys)</h2>
+      {students.map((student) => (
+  <p key={student.id}>
+    {student.name} - {student.course}
+  </p>
+))}
 
-      {/* Initial List */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <h2>📋 Initial Student List</h2>
-        {students.map((student) => (
-          <p key={student.id}>
-            {student.name} - {student.course}
-          </p>
-        ))}
-      </div>
+      {}
+      <input
+        type="text"
+        placeholder="🔍 Search student..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        style={{
+          padding: "10px",
+          width: "250px",
+          borderRadius: "8px",
+          border: "none",
+          marginBottom: "20px",
+        }}
+      />
 
-      {/* Search */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <input
-          type="text"
-          placeholder="🔍 Search student..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            padding: "12px",
-            width: "300px",
-            borderRadius: "10px",
-            border: "none",
-            outline: "none"
-          }}
-        />
-      </div>
-
-      {/* Main Layout */}
+      {}
+      <h2>Add Student (Form Submit)</h2>
       <div
         style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "20px",
-          flexWrap: "wrap"
+          background: "#1e293b",
+          padding: "20px",
+          borderRadius: "15px",
+          maxWidth: "400px",
+          margin: "auto",
         }}
       >
-        {/* Form Section */}
-        <div
-          
-  style={{
-    background: "rgba(255,255,255,0.05)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    padding: "20px",
-    borderRadius: "15px",
-    width: "300px"
-  }}
+        <input
+          type="text"
+          placeholder="Enter Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
+        />
 
-        >
-          <h2>Add Student</h2>
+        <input
+          type="text"
+          placeholder="Enter Course"
+          value={course}
+          onChange={(e) => setCourse(e.target.value)}
+          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
+        />
 
-          <input
-            type="text"
-            placeholder="Enter Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              borderRadius: "8px",
-              border: "none"
-            }}
-          />
-
-          <input
-            type="text"
-            placeholder="Enter Course"
-            value={course}
-            onChange={(e) => setCourse(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "10px",
-              marginBottom: "10px",
-              borderRadius: "8px",
-              border: "none"
-            }}
-          />
-
-          <button
-            onClick={handleSubmit}
-            style={{
-              width: "100%",
-              padding: "10px",
-              background: editIndex !== null ? "#f59e0b" : "#22c55e",
-              border: "none",
-              borderRadius: "8px",
-              color: "white",
-              cursor: "pointer"
-            }}
-          >
-            {editIndex !== null ? "Update Student" : "Add Student"}
-          </button>
-        </div>
-
-        {/* Student Cards */}
-        <div style={{ width: "350px" }}>
-          <h2 style={{ textAlign: "center" }}>👨‍🎓 Students</h2>
-
-          {filteredStudents.length === 0 ? (
-            <p style={{ textAlign: "center" }}>No students found</p>
-          ) : (
-            filteredStudents.map((student, index) => (
-              <StudentCard
-                key={student.id || index}
-                student={student}
-                onDelete={() => handleDelete(index)}
-                onEdit={() => handleEdit(index)}
-              />
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* API Section */}
-      <div style={{ marginTop: "40px", textAlign: "center" }}>
-        <h2>🌐 API Users</h2>
-
-        <div
+        <button
+          onClick={handleSubmit}
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: "10px",
-            marginTop: "10px"
+            width: "100%",
+            padding: "10px",
+            background: editIndex !== null ? "#f59e0b" : "#22c55e",
+            border: "none",
+            borderRadius: "8px",
+            color: "white",
           }}
         >
-          {apiUsers.map((user) => (
-            <div
-              key={user.id}
-              style={{
-                background: "#334155",
-                padding: "10px 15px",
-                borderRadius: "10px"
-              }}
-            >
-              {user.name}
-            </div>
-          ))}
-        </div>
+          {editIndex !== null ? "Update Student" : "Add Student"}
+        </button>
       </div>
+
+      {}
+      <div style={{ maxWidth: "400px", margin: "20px auto" }}>
+        {filteredStudents.length === 0 ? (
+          <p>No students found</p>
+        ) : (
+          filteredStudents.map((student, index) => (
+            <StudentCard
+              key={student.id || index}
+              student={student}
+              onDelete={() => handleDelete(index)}
+              onEdit={() => handleEdit(index)}
+            />
+          ))
+        )}
+      </div>
+      <h2>API Users (Fetch API)</h2>
+
+{apiUsers.map((user) => (
+  <p key={user.id}>{user.name}</p>
+))}
     </div>
   );
 }
