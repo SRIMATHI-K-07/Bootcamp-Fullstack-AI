@@ -40,7 +40,7 @@ Enhanced the application into a **Student Manager App**
 * 🎨 Improved UI with modern design
 
 <img width="753" height="772" alt="image" src="https://github.com/user-attachments/assets/2d8d5360-d3e7-4390-ab7c-10726870ef53" />
-<img width="597" height="800" alt="image" src="https://github.com/user-attachments/assets/9b060eba-8749-41d9-a099-ce6e7a215ad8" />
+<img width="406" height="493" alt="image" src="https://github.com/user-attachments/assets/407c5f00-6358-49b5-9cb8-ea3b6027a63b" />
 <img width="639" height="683" alt="image" src="https://github.com/user-attachments/assets/aa4cce03-ad21-4678-b571-aaaa5309a59b" />
 
 
