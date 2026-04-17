@@ -27,7 +27,7 @@ app.put("/update/:id", async (req, res) => {
 });
 
 
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log(err));
 
@@ -35,13 +35,29 @@ app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
-
 app.delete("/delete/:id", async (req, res) => {
   await Student.findByIdAndUpdate(req.params.id, {
     isDeleted: true
   });
   res.send("Soft deleted");
+});
+
+const jwt = require("jsonwebtoken");
+
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (username === "admin" && password === "1234") {
+    const token = jwt.sign({ username }, "secretkey", {
+      expiresIn: "1h"
+    });
+
+    res.json({ token });
+  } else {
+    res.status(401).send("Invalid credentials");
+  }
+});
+
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
 });
