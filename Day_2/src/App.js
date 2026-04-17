@@ -64,9 +64,15 @@ const handleSubmit = async () => {
   fetchStudents(); // refresh UI
 };
 
-  const handleDelete = (index) => {
-    setStudents(students.filter((_, i) => i !== index));
-  };
+const handleDelete = async (index) => {
+  const student = students[index];
+
+  await fetch(`http://localhost:5000/delete/${student._id}`, {
+    method: "DELETE"
+  });
+
+  fetchStudents();
+};
 
   const handleEdit = (index) => {
     setName(students[index].name);
@@ -93,7 +99,7 @@ const handleSubmit = async () => {
       <h1>🎓 Student Manager Pro</h1>
       <h2>Initial Student List (map & keys)</h2>
       {students.map((student) => (
-  <p key={student.id}>
+  <p key={student._id}>
     {student.name} - {student.course}
   </p>
 ))}
@@ -162,7 +168,7 @@ const handleSubmit = async () => {
         ) : (
           filteredStudents.map((student, index) => (
             <StudentCard
-              key={student.id || index}
+              key={student._id || index}
               student={student}
               onDelete={() => handleDelete(index)}
               onEdit={() => handleEdit(index)}
