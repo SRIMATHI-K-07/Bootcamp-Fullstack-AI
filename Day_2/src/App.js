@@ -15,14 +15,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [apiUsers, setApiUsers] = useState([]);
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("students"));
-    if (saved) setStudents(saved);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("students", JSON.stringify(students));
-  }, [students]);
+ 
 
   useEffect(() => {
   fetch("https://jsonplaceholder.typicode.com/users")
@@ -30,24 +23,46 @@ function App() {
     .then((data) => setApiUsers(data));
 }, []);
 
-  const handleSubmit = () => {
-    if (!name || !course) return;
+const fetchStudents = async () => {
+  const res = await fetch("http://localhost:5000/students");
+  const data = await res.json();
+  setStudents(data);
+};
 
-    if (editIndex !== null) {
-      const updated = [...students];
-      updated[editIndex] = { name, course, status: "Active" };
-      setStudents(updated);
-      setEditIndex(null);
-    } else {
-      setStudents([
-        ...students,
-        { id: students.length + 1,name, course, status: "Active" },
-      ]);
-    }
+useEffect(() => {
+  fetchStudents();
+}, []);
 
-    setName("");
-    setCourse("");
-  };
+const handleSubmit = async () => {
+  if (!name || !course) return;
+
+  if (editIndex !== null) {
+    const student = students[editIndex];
+
+    await fetch(`http://localhost:5000/update/${student._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, course })
+    });
+
+    setEditIndex(null);
+  } else {
+    await fetch("http://localhost:5000/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, course })
+    });
+  }
+
+  setName("");
+  setCourse("");
+
+  fetchStudents(); // refresh UI
+};
 
   const handleDelete = (index) => {
     setStudents(students.filter((_, i) => i !== index));
