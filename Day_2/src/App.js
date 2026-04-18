@@ -94,9 +94,10 @@ const handleDelete = async (index) => {
   };
 
  
- const filteredStudents = students.filter((s) =>
-  s?.name?.toLowerCase().includes(search.toLowerCase())
-);
+ const filteredStudents = students.filter((s) => {
+  if (!search) return true; // 🔥 show all if search empty
+  return s?.name?.toLowerCase().includes(search.toLowerCase());
+});
 
   const token = localStorage.getItem("token");
   const handleLogin = async () => {
