@@ -117,7 +117,6 @@ const handleDelete = async (index) => {
   fetchStudents();
 };
 
-
   return (
     <div
       style={{
@@ -147,6 +146,12 @@ const handleDelete = async (index) => {
 <button onClick={handleLogin}>Login</button>
 
       <h1>🎓 Student Manager Pro</h1>
+      <button onClick={() => {
+  localStorage.removeItem("token");
+  window.location.reload();
+}}>
+  Logout
+</button>
       <h2>Initial Student List (map & keys)</h2>
       {students.map((student) => (
   <p key={student._id}>
