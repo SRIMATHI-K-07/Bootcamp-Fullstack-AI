@@ -34,6 +34,7 @@ const fetchStudents = async () => {
   });
 
   const data = await res.json();
+  console.log("API DATA:", data);
   setStudents(data);
 };
 
@@ -95,7 +96,7 @@ const handleDelete = async (index) => {
 
  
  const filteredStudents = students.filter((s) => {
-  if (!search) return true; // 🔥 show all if search empty
+  if (!search) return true; 
   return s?.name?.toLowerCase().includes(search.toLowerCase());
 });
 
