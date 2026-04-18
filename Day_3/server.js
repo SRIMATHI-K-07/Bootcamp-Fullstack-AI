@@ -45,6 +45,21 @@ app.delete("/delete/:id", async (req, res) => {
 });
 
 const jwt = require("jsonwebtoken");
+const verifyToken = (req, res, next) => {
+  const header = req.headers.authorization;
+
+  if (!header) return res.status(403).send("No token");
+
+  const token = header.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, "secretkey");
+    req.user = decoded;
+    next();
+  } catch {
+    res.status(401).send("Invalid token");
+  }
+};
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
@@ -60,6 +75,15 @@ app.post("/login", (req, res) => {
   }
 });
 
+app.get("/profile", verifyToken, (req, res) => {
+  res.send("Welcome " + req.user.username);
+});
+
 app.listen(5000, () => {
   console.log("Server running on port 5000");
+});
+
+app.get("/students", verifyToken, async (req, res) => {
+  const students = await Student.find({ isDeleted: false });
+  res.send(students);
 });
