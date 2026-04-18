@@ -94,22 +94,28 @@ const handleDelete = async (index) => {
   };
 
  
-  const filteredStudents = students.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase())
-  );
+ const filteredStudents = students.filter((s) =>
+  s?.name?.toLowerCase().includes(search.toLowerCase())
+);
 
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const handleLogin = async () => {
   const res = await fetch("http://localhost:5000/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
+      
     },
     body: JSON.stringify({ username, password })
   });
 
   const data = await res.json();
-
+  if (Array.isArray(data)) {
+    setStudents(data);
+  } else {
+    console.log("Not array:", data);
+    setStudents([]); // prevent crash
+  }
   localStorage.setItem("token", data.token);
 
   alert("Login success");
