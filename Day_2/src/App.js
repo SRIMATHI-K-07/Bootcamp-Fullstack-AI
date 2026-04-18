@@ -14,7 +14,8 @@ function App() {
   const [editIndex, setEditIndex] = useState(null);
   const [search, setSearch] = useState("");
   const [apiUsers, setApiUsers] = useState([]);
-
+  const [username, setUsername] = useState("");
+  const [password, setPassword] =  useState("");
  
 
   useEffect(() => {
@@ -24,7 +25,14 @@ function App() {
 }, []);
 
 const fetchStudents = async () => {
-  const res = await fetch("http://localhost:5000/students");
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("http://localhost:5000/students", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
   const data = await res.json();
   setStudents(data);
 };
@@ -40,22 +48,24 @@ const handleSubmit = async () => {
     const student = students[editIndex];
 
     await fetch(`http://localhost:5000/update/${student._id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, course })
-    });
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  },
+  body: JSON.stringify({ name, course })
+});
 
     setEditIndex(null);
   } else {
     await fetch("http://localhost:5000/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, course })
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  },
+  body: JSON.stringify({ name, course })
+});
   }
 
   setName("");
@@ -68,8 +78,11 @@ const handleDelete = async (index) => {
   const student = students[index];
 
   await fetch(`http://localhost:5000/delete/${student._id}`, {
-    method: "DELETE"
-  });
+  method: "DELETE",
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`
+  }
+});
 
   fetchStudents();
 };
@@ -85,6 +98,24 @@ const handleDelete = async (index) => {
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
+    const token = localStorage.getItem("token");
+  const handleLogin = async () => {
+  const res = await fetch("http://localhost:5000/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  localStorage.setItem("token", data.token);
+
+  alert("Login success");
+};
+
+
   return (
     <div
       style={{
@@ -96,6 +127,23 @@ const handleDelete = async (index) => {
         textAlign: "center",
       }}
     >
+      <h2>Login</h2>
+
+<input
+  placeholder="Username"
+  value={username}
+  onChange={(e) => setUsername(e.target.value)}
+/>
+
+<input
+  type="password"
+  placeholder="Password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+/>
+
+<button onClick={handleLogin}>Login</button>
+
       <h1>🎓 Student Manager Pro</h1>
       <h2>Initial Student List (map & keys)</h2>
       {students.map((student) => (
