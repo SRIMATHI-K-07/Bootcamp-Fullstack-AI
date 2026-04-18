@@ -2,91 +2,88 @@ import React, { useState, useEffect } from "react";
 import StudentCard from "./StudentCard";
 
 function App() {
-  const [students, setStudents] = useState([
-  { id: 1, name: "Sassy", course: "AI" },
-  { id: 2, name: "Ram", course: "React" },
-  { id: 3, name: "Priya", course: "Node" },
-  { id: 4, name: "John", course: "JS" },
-  { id: 5, name: "Anu", course: "Python" }
-]);
+  const [students, setStudents] = useState([]);
   const [name, setName] = useState("");
   const [course, setCourse] = useState("");
   const [editIndex, setEditIndex] = useState(null);
   const [search, setSearch] = useState("");
   const [apiUsers, setApiUsers] = useState([]);
   const [username, setUsername] = useState("");
-  const [password, setPassword] =  useState("");
- 
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
-  fetch("https://jsonplaceholder.typicode.com/users")
-    .then((res) => res.json())
-    .then((data) => setApiUsers(data));
-}, []);
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((res) => res.json())
+      .then((data) => setApiUsers(data));
+  }, []);
 
-const fetchStudents = async () => {
-  const token = localStorage.getItem("token");
+  const fetchStudents = async () => {
+    const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:5000/students", {
-    headers: {
-      Authorization: `Bearer ${token}`
+    const res = await fetch("http://localhost:5000/students", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    console.log("API DATA:", data);
+
+    if (Array.isArray(data)) {
+      setStudents(data);
+    } else {
+      setStudents([]);
     }
-  });
+  };
 
-  const data = await res.json();
-  console.log("API DATA:", data);
-  setStudents(data);
-};
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
-useEffect(() => {
-  fetchStudents();
-}, []);
+  const handleSubmit = async () => {
+    if (!name || !course) return;
 
-const handleSubmit = async () => {
-  if (!name || !course) return;
+    if (editIndex !== null) {
+      const student = students[editIndex];
 
-  if (editIndex !== null) {
-    const student = students[editIndex];
+      await fetch(`http://localhost:5000/update/${student._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ name, course }),
+      });
 
-    await fetch(`http://localhost:5000/update/${student._id}`, {
-  method: "PUT",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`
-  },
-  body: JSON.stringify({ name, course })
-});
+      setEditIndex(null);
+    } else {
+      await fetch("http://localhost:5000/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ name, course }),
+      });
+    }
 
-    setEditIndex(null);
-  } else {
-    await fetch("http://localhost:5000/add", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`
-  },
-  body: JSON.stringify({ name, course })
-});
-  }
+    setName("");
+    setCourse("");
+    fetchStudents();
+  };
 
-  setName("");
-  setCourse("");
+  const handleDelete = async (index) => {
+    const student = students[index];
 
-  fetchStudents(); // refresh UI
-};
+    await fetch(`http://localhost:5000/delete/${student._id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
 
-const handleDelete = async (index) => {
-  const student = students[index];
-
-  await fetch(`http://localhost:5000/delete/${student._id}`, {
-  method: "DELETE",
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`
-  }
-});
-
-  fetchStudents();
-};
+    fetchStudents();
+  };
 
   const handleEdit = (index) => {
     setName(students[index].name);
@@ -94,28 +91,27 @@ const handleDelete = async (index) => {
     setEditIndex(index);
   };
 
- 
- const filteredStudents = students.filter((s) => {
-  if (!search) return true; 
-  return s?.name?.toLowerCase().includes(search.toLowerCase());
-});
-
-  const token = localStorage.getItem("token");
+  const filteredStudents = Array.isArray(students)
+    ? students.filter((s) =>
+        s?.name?.toLowerCase().includes(search.toLowerCase())
+      )
+    : [];
 
   const handleLogin = async () => {
-  const res = await fetch("http://localhost:5000/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ username, password })
-  });
+    const res = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
 
-  const data = await res.json();
-  localStorage.setItem("token", data.token);
-  alert("Login success");
-  fetchStudents();
-};
+    const data = await res.json();
+    localStorage.setItem("token", data.token);
+
+    alert("Login success");
+    fetchStudents();
+  };
 
   return (
     <div
@@ -128,114 +124,93 @@ const handleDelete = async (index) => {
         textAlign: "center",
       }}
     >
-      <h2>Login</h2>
+      {!localStorage.getItem("token") ? (
+        <>
+          <h2>Login</h2>
 
-<input
-  placeholder="Username"
-  value={username}
-  onChange={(e) => setUsername(e.target.value)}
-/>
+          <input
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-<input
-  type="password"
-  placeholder="Password"
-  value={password}
-  onChange={(e) => setPassword(e.target.value)}
-/>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-<button onClick={handleLogin}>Login</button>
+          <button onClick={handleLogin}>Login</button>
+        </>
+      ) : (
+        <>
+          <h1>🎓 Student Manager Pro</h1>
 
-      <h1>🎓 Student Manager Pro</h1>
-      <button onClick={() => {
-  localStorage.removeItem("token");
-  window.location.reload();
-}}>
-  Logout
-</button>
-      <h2>Initial Student List (map & keys)</h2>
-      {students.map((student) => (
-  <p key={student._id}>
-    {student.name} - {student.course}
-  </p>
-))}
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.reload();
+            }}
+          >
+            Logout
+          </button>
 
-      {}
-      <input
-        type="text"
-        placeholder="🔍 Search student..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{
-          padding: "10px",
-          width: "250px",
-          borderRadius: "8px",
-          border: "none",
-          marginBottom: "20px",
-        }}
-      />
+          <h2>Initial Student List</h2>
+          {students.map((student) => (
+            <p key={student._id}>
+              {student.name} - {student.course}
+            </p>
+          ))}
 
-      {}
-      <h2>Add Student (Form Submit)</h2>
-      <div
-        style={{
-          background: "#1e293b",
-          padding: "20px",
-          borderRadius: "15px",
-          maxWidth: "400px",
-          margin: "auto",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Enter Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
+          <input
+            type="text"
+            placeholder="🔍 Search student..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <input
-          type="text"
-          placeholder="Enter Course"
-          value={course}
-          onChange={(e) => setCourse(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
+          <h2>Add Student</h2>
 
-        <button
-          onClick={handleSubmit}
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: editIndex !== null ? "#f59e0b" : "#22c55e",
-            border: "none",
-            borderRadius: "8px",
-            color: "white",
-          }}
-        >
-          {editIndex !== null ? "Update Student" : "Add Student"}
-        </button>
-      </div>
+          <input
+            type="text"
+            placeholder="Enter Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-      {}
-      <div style={{ maxWidth: "400px", margin: "20px auto" }}>
-        {filteredStudents.length === 0 ? (
-          <p>No students found</p>
-        ) : (
-          filteredStudents.map((student, index) => (
-            <StudentCard
-              key={student._id || index}
-              student={student}
-              onDelete={() => handleDelete(index)}
-              onEdit={() => handleEdit(index)}
-            />
-          ))
-        )}
-      </div>
-      <h2>API Users (Fetch API)</h2>
+          <input
+            type="text"
+            placeholder="Enter Course"
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
+          />
 
-{apiUsers.map((user) => (
-  <p key={user.id}>{user.name}</p>
-))}
+          <button onClick={handleSubmit}>
+            {editIndex !== null ? "Update Student" : "Add Student"}
+          </button>
+
+          <div>
+            {filteredStudents.length === 0 ? (
+              <p>No students found</p>
+            ) : (
+              filteredStudents.map((student, index) => (
+                <StudentCard
+                  key={student._id}
+                  student={student}
+                  onDelete={() => handleDelete(index)}
+                  onEdit={() => handleEdit(index)}
+                />
+              ))
+            )}
+          </div>
+
+          <h2>API Users</h2>
+          {apiUsers.map((user) => (
+            <p key={user.id}>{user.name}</p>
+          ))}
+        </>
+      )}
     </div>
   );
 }
